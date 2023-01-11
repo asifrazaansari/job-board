@@ -2,17 +2,17 @@ const isvalidEmail = (email) => {
     const emailRegex = /^\s*[a-zA-Z0-9]+([\.\-\_\+][a-zA-Z0-9]+)*@[a-zA-Z]+([\.\-\_][a-zA-Z]+)*(\.[a-zA-Z]{2,3})+\s*$/
     return emailRegex.test(email)
 }
-const isvalidPass= (pass) => {
+const isvalidPass = (pass) => {
     const passRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,15}$/
     return passRegex.test(pass)
 }
 
-function validateObjectId(id) {
+const validateObjectId = (id) => {
     var bool = false;
     if (id.length == 24) bool = /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id);
     return bool;
 }
-const stringChecking = function(data) {
+const isValidString = (data) => {
     if (typeof data !== 'string' || data === undefined || data === null) {
         return false;
     } else if (typeof data === 'string' && data.trim().length === 0) {
@@ -41,7 +41,7 @@ module.exports = {
     isvalidEmail,
     isvalidPass,
     validateObjectId,
-    stringChecking,
+    isValidString,
     nameRegex,
     imageValid,
 }
