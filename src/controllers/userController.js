@@ -1,7 +1,7 @@
 const user = require('../models/userModel')
 const job = require('../models/recruiterModel')
-const {uploadFile} = require("../utils/aws")
-const { isvalidEmail, isvalidPass, isValidString, nameRegex } = require('../validators/validator')
+const { uploadFile } = require("../utils/aws")
+const { isvalidEmail, isvalidPass, isValidString, nameRegex, isValidResume, isValidCoverLetter } = require('../validators/validator')
 
 const listJob = async (req, res) => {
     try {
@@ -59,20 +59,28 @@ const applyJob = async (req, res) => {
         const data = req.body
         const { fname, lname, email, resume, coverLetter } = data
         const files = req.files
-        console.log(files)
+    
         //validations
         if (!nameRegex(fname)) return res.status(400).send({ status: false, msg: "fname must be present and in correct format" });
         if (!nameRegex(lname)) return res.status(400).send({ status: false, msg: "lname must be present and in correct format" });
         if (!isvalidEmail(email)) return res.status(400).send({ status: false, msg: "email must be present and valid" });
 
         //validations for files
-        if (files && files.length > 0) {
-            //if (!imageValid(files[0].mimetype)) return res.status(400).send({ status: false, message: "Image Should be of JPEG/ JPG/ PNG" })
-            const uploadedPdf = await uploadFile(files[0])
-            data.resume = uploadedPdf
+        if (files.length === 2) {
+            if (files[0].fieldname === "resume") {
+                if (!isValidResume(files[0].mimetype)) return res.status(400).send({ status: false, message: "resume should be  in pdf or doc format" })
+                const uploadedResume = await uploadFile(files[0])
+                data.resume = uploadedResume
+            }
+
+            if (files[1].fieldname === "coverLetter") {
+                if (!isValidCoverLetter(files[1].mimetype)) return res.status(400).send({ status: false, message: "coverLetter should be  in markdown format" })
+                const uploadedCL = await uploadFile(files[1])
+                data.coverLetter = uploadedCL
+            }
         }
         else {
-            return res.status(400).send({ msg: "No file found, profileImage must be present" })
+            return res.status(400).send({ status: false, msg: "resume and coverletter must be present" })
         }
 
         const saveData = await user.create(data)

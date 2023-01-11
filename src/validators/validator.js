@@ -22,10 +22,15 @@ const isValidString = (data) => {
     }
 }
 
-const imageValid = (img) => {
-    const reg = /image\/png|image\/jpeg|image\/jpg/;
-    return reg.test(img);
-};
+const isValidResume = (resume) => {
+    const reg = /application\/doc|application\/pdf/
+    return reg.test(resume);
+}
+
+const isValidCoverLetter = (coverLetter) => {
+    const reg = /text\/md|text\/markdown/
+    return reg.test(coverLetter);
+}
 
 
 const nameRegex = (value) => {
@@ -43,5 +48,6 @@ module.exports = {
     validateObjectId,
     isValidString,
     nameRegex,
-    imageValid,
+    isValidResume,
+    isValidCoverLetter
 }
