@@ -30,6 +30,10 @@ const applicationSchema = new mongoose.Schema({
     job: {
         type: ObjectId,
         ref: 'Job'
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 
 }, {timestamps: true})

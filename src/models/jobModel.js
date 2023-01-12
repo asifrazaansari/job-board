@@ -28,6 +28,10 @@ const jobSchema = new mongoose.Schema({
     user: {
         type: ObjectId,
         ref: 'User'
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 
 }, {timestamps: true});

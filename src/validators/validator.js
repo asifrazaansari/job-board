@@ -7,11 +7,6 @@ const isvalidPass = (pass) => {
     return passRegex.test(pass)
 }
 
-const validateObjectId = (id) => {
-    var bool = false;
-    if (id.length == 24) bool = /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id);
-    return bool;
-}
 const isValidString = (data) => {
     if (typeof data !== 'string' || data === undefined || data === null) {
         return false;
@@ -45,7 +40,6 @@ const nameRegex = (value) => {
 module.exports = {
     isvalidEmail,
     isvalidPass,
-    validateObjectId,
     isValidString,
     nameRegex,
     isValidResume,

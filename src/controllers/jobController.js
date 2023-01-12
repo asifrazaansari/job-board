@@ -1,3 +1,4 @@
+const jobModel = require("../models/jobModel")
 const job = require("../models/jobModel")
 const { isvalidEmail, isValidString } = require('../validators/validator')
 
@@ -10,7 +11,7 @@ const postJob = async (req, res) => {
 
         const { title, description, email, skills, experience } = data
         data.user = decoded.userId
-
+        data.isDeleted = false
         //=================================Validations===========================================//
         if (!isValidString(title)) return res.status(400).send({ status: false, message: "title should be present and valid" })
         if (!isValidString(description)) return res.status(400).send({ status: false, message: "description should be present and valid" })
@@ -32,11 +33,11 @@ const getJob = async (req, res) => {
         const data = req.query
 
         if (Object.keys(data).length === 0) {
-            const allJobs = await job.find()
+            const allJobs = await job.find({ isDeleted: false })
             return res.status(200).send({ status: true, message: "All Jobs", count: allJobs.length, data: allJobs })
         }
 
-        const filter = {}
+        const filter = { isDeleted: false }
 
         if (data.skills) {
             if (!isValidString(data.skills)) return res.status(400).send({ status: false, message: "skills should be valid string" })
@@ -80,7 +81,7 @@ const getJob = async (req, res) => {
 
 const getJobById = async (req, res) => {
     try {
-        const Job = await job.findById(req.params.id);
+        const Job = await job.findOne({ _id: req.params.id, isDeleted: false });
         if (!Job) {
             return res.status(404).send({ status: false, message: "No jobs found, come later" });
         }
@@ -90,6 +91,72 @@ const getJobById = async (req, res) => {
     }
 }
 
+const updateJob = async (req, res) => {
+    try {
+        const data = req.body
+        const decoded = req.decodedToken
 
-module.exports = { postJob, getJob, getJobById }
+        const findJob = await job.findOne({ _id: req.params.id, isDeleted: false });
+        if (!findJob) return res.status(404).send({ status: false, message: "No job found with this Id, please check again" });
+
+        if (findJob.user.toString() !== decoded.userId) return res.status(403).send({ status: false, message: "You are not authorised" });
+
+
+        let { title, description, email, skills, experience } = data
+
+        if (title) {
+            if (!isValidString(title)) return res.status(400).send({ status: false, message: "title should be valid string" })
+            findJob.title = title;
+        }
+
+        if (description) {
+            if (!isValidString(description)) return res.status(400).send({ status: false, message: "description should be valid string" })
+            findJob.description = description;
+        }
+
+        if (email) {
+            if (!isvalidEmail(email)) return res.status(400).send({ status: false, message: "email should be valid" })
+            findJob.email = email;
+        }
+
+        if (skills) {
+            if (!isValidString(skills)) return res.status(400).send({ status: false, message: "skills should be valid" })
+            findJob.skills = skills;
+        }
+
+        if (experience) {
+            if (!isValidString(experience)) return res.status(400).send({ status: false, message: "experience should be valid" })
+            findJob.experience = experience;
+        }
+
+
+        await findJob.save()
+
+        return res.status(200).send({ status: true, message: "Job successfully updated", data: findJob })
+
+    } catch (error) {
+        return res.status(500).send({ status: false, error: error.message })
+    }
+}
+
+const deleteJob = async (req, res) => {
+    try {
+        const decoded = req.decodedToken
+
+        const findJob = await job.findOne({ _id: req.params.id, isDeleted: false });
+        if (!findJob) return res.status(404).send({ status: false, message: "No job found with this Id, please check again" });
+
+        if (findJob.user.toString() !== decoded.userId) return res.status(403).send({ status: false, message: "You are not authorised" });
+
+        findJob.isDeleted = true
+        await findJob.save()
+
+        return res.status(200).send({status: true, message: "successfully deleted"})
+    } catch (error) {
+        return res.status(500).send({ status: false, error: error.message })
+    }
+}
+
+
+module.exports = { postJob, getJob, getJobById, updateJob, deleteJob }
 
