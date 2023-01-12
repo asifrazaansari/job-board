@@ -91,26 +91,32 @@ const updateApplication = async (req, res) => {
         }
 
         //validations for files
-        if (files[0].fieldname === "resume" || files[1].fieldname === "resume") {
-            if (isValidResume(files[0].mimetype)) {
-                const uploadedResume = await uploadFile(files[0])
-                applicant.resume = uploadedResume
-            } else if (isValidResume(files[1].mimetype)) {
-                const uploadedResume = await uploadFile(files[1])
-                applicant.resume = uploadedResume
+        if (files && files.length > 0) {
+            if (files[0].fieldname == "resume" || files[1].fieldname == "resume") {
+                if (isValidResume(files[0].mimetype)) {
+                    const uploadedResume = await uploadFile(files[0])
+                    applicant.resume = uploadedResume
+                } else if (isValidResume(files[1].mimetype)) {
+                    const uploadedResume = await uploadFile(files[1])
+                    applicant.resume = uploadedResume
+                } else {
+                    return res.status(400).send({ status: false, message: "resume should be  in pdf or doc format" })
+                }
             }
-            return res.status(400).send({ status: false, message: "resume should be  in pdf or doc format" })
         }
 
-        if (files[0].fieldname === "coverLetter" || files[1].fieldname === "coverLetter") {
-            if (isValidCoverLetter(files[0].mimetype)) {
-                const uploadedCL = await uploadFile(files[0])
-                applicant.coverLetter = uploadedCL
-            } else if (isValidCoverLetter(files[1].mimetype)) {
-                const uploadedCL = await uploadFile(files[1])
-                applicant.coverLetter = uploadedCL
+        if (files && files.length > 0) {
+            if (files[0].fieldname == "coverLetter" || files[1].fieldname == "coverLetter") {
+                if (isValidCoverLetter(files[0].mimetype)) {
+                    const uploadedCL = await uploadFile(files[0])
+                    applicant.coverLetter = uploadedCL
+                } else if (isValidCoverLetter(files[1].mimetype)) {
+                    const uploadedCL = await uploadFile(files[1])
+                    applicant.coverLetter = uploadedCL
+                } else {
+                    return res.status(400).send({ status: false, message: "coverLetter should be  in markdown format" })
+                }
             }
-            return res.status(400).send({ status: false, message: "coverLetter should be  in markdown format" })
         }
 
         await applicant.save()
@@ -137,7 +143,7 @@ const deleteApplication = async (req, res) => {
         applicant.isDeleted = true
         await applicant.save()
 
-        return res.status(200).send({status: true, message: "successfully deleted"})
+        return res.status(200).send({ status: true, message: "successfully deleted" })
     } catch (error) {
         return res.status(500).send({ status: false, error: error.message })
     }
