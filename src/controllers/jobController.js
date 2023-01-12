@@ -1,4 +1,3 @@
-const jobModel = require("../models/jobModel")
 const job = require("../models/jobModel")
 const { isvalidEmail, isValidString } = require('../validators/validator')
 
