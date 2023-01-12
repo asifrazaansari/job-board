@@ -49,13 +49,15 @@ const applyJob = async (req, res) => {
 const getApplications = async (req, res) => {
     try {
         const decoded = req.decodedToken
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
 
         const findJob = await Job.findOne({ _id: req.params.id, isDeleted: false });
         if (!findJob) return res.status(404).send({ status: false, message: "No job found with this Id, please check again" });
 
         if (findJob.user.toString() !== decoded.userId) return res.status(403).send({ status: false, message: "You are not authorised" });
 
-        const allApplicant = await application.find({ job: findJob._id })
+        const allApplicant = await application.find({ job: findJob._id }).skip((page - 1) * limit).limit(limit)
         if (!allApplicant) return res.status(404).send({ status: false, message: "No applicant found" });
 
         return res.status(200).send({ status: true, message: "All applicant", count: allApplicant.length, data: allApplicant })
@@ -92,30 +94,21 @@ const updateApplication = async (req, res) => {
 
         //validations for files
         if (files && files.length > 0) {
-            if (files[0].fieldname == "resume" || files[1].fieldname == "resume") {
-                if (isValidResume(files[0].mimetype)) {
-                    const uploadedResume = await uploadFile(files[0])
-                    applicant.resume = uploadedResume
-                } else if (isValidResume(files[1].mimetype)) {
-                    const uploadedResume = await uploadFile(files[1])
-                    applicant.resume = uploadedResume
-                } else {
-                    return res.status(400).send({ status: false, message: "resume should be  in pdf or doc format" })
-                }
+            if (isValidResume(files[0].mimetype)) {
+                const uploadedResume = await uploadFile(files[0])
+                applicant.resume = uploadedResume
+            } else {
+                return res.status(400).send({ status: false, message: "resume should be  in pdf or doc format" })
             }
+
         }
 
-        if (files && files.length > 0) {
-            if (files[0].fieldname == "coverLetter" || files[1].fieldname == "coverLetter") {
-                if (isValidCoverLetter(files[0].mimetype)) {
-                    const uploadedCL = await uploadFile(files[0])
-                    applicant.coverLetter = uploadedCL
-                } else if (isValidCoverLetter(files[1].mimetype)) {
-                    const uploadedCL = await uploadFile(files[1])
-                    applicant.coverLetter = uploadedCL
-                } else {
-                    return res.status(400).send({ status: false, message: "coverLetter should be  in markdown format" })
-                }
+        if (files && files.length > 1) {
+            if (isValidCoverLetter(files[1].mimetype)) {
+                const uploadedCL = await uploadFile(files[1])
+                applicant.coverLetter = uploadedCL
+            } else {
+                return res.status(400).send({ status: false, message: "coverLetter should be  in markdown format" })
             }
         }
 

@@ -31,6 +31,8 @@ const postJob = async (req, res) => {
 const getJob = async (req, res) => {
     try {
         const data = req.query
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
 
         if (Object.keys(data).length === 0) {
             const allJobs = await job.find({ isDeleted: false })
@@ -68,7 +70,7 @@ const getJob = async (req, res) => {
             filter.email = data.email
         }
 
-        const allPosting = await job.find(filter).select({ user: 0 })
+        const allPosting = await job.find(filter).skip((page - 1) * limit).limit(limit).select({ user: 0 })
         if (allPosting.length === 0) return res.status(404).send({ status: false, message: "No jobs found, come later" });
 
         return res.status(200).send({ status: true, message: "Success", count: allPosting.length, data: allPosting });
@@ -151,7 +153,7 @@ const deleteJob = async (req, res) => {
         findJob.isDeleted = true
         await findJob.save()
 
-        return res.status(200).send({status: true, message: "successfully deleted"})
+        return res.status(200).send({ status: true, message: "successfully deleted" })
     } catch (error) {
         return res.status(500).send({ status: false, error: error.message })
     }
