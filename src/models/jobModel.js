@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
+const ObjectId =  mongoose.Schema.Types.ObjectId
 
-
-const recruiterSchema = new mongoose.Schema({
+const jobSchema = new mongoose.Schema({
     title: {
        type: String,
        required: true,
@@ -24,8 +24,12 @@ const recruiterSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
+    },
+    user: {
+        type: ObjectId,
+        ref: 'User'
     }
 
 }, {timestamps: true});
 
-module.exports = mongoose.model('jobList', recruiterSchema)
+module.exports = mongoose.model('jobList', jobSchema)

@@ -1,22 +1,27 @@
 const express = require('express')
 const router = express.Router()
 
-//=========================controllers require==========================//
-const { postJob } = require('../controllers/recruiterController')
-const { listJob, applyJob } = require('../controllers/userController')
+// Controllers require
+const {createUser, loginUser} = require('../controllers/userController')
+const { postJob, getJob, getJobById } = require('../controllers/jobController')
+const { applyJob, getApplications } = require('../controllers/applicationController')
 
-//================middlewares, validation===============================//
-const { authentication, authorization } = require('../middlewares/auth')
+// Middleware
+const { authentication} = require('../middlewares/auth')
 
 
+// User routes
+router.post('/users', createUser);
+router.post('/users/login', loginUser);
 
-//===============================recruiter routes=======================//
-router.post('/postJob', postJob)
+// Job routes
+router.post('/jobs', authentication, postJob);
+router.get('/jobs', getJob);
+router.get('/jobs/:id', authentication, getJobById);
 
-//============================user routes=============================//
-router.get('/listJob', listJob)
-router.post('/applyJob', applyJob)
-
+// Application routes
+router.post('/jobs/:id/apply', authentication, applyJob);
+router.get('/jobs/:id/applications', authentication, getApplications);
 
 router.all('/*', (req, res) => {
     return res.status(400).send({ status: false, message: "Page not found" })
