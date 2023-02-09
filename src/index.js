@@ -4,9 +4,11 @@ const app = express()
 const mongoose = require("mongoose")
 const route = require("./routes/route")
 const multer = require("multer")
+const cors = require("cors")
 
 app.use(express.json())
 app.use(multer().any())
+app.use(cors())
 app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT
