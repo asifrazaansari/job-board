@@ -42,7 +42,7 @@ const applyJob = async (req, res) => {
             }
 
             if (files[1].fieldname === "coverLetter") {
-                if (!isValidCoverLetter(files[1].mimetype)) return res.status(400).send({ status: false, message: "coverLetter should be  in markdown format" })
+                //if (!isValidCoverLetter(files[1].mimetype)) return res.status(400).send({ status: false, message: "coverLetter should be  in markdown format" })
                 const uploadedCL = await uploadFile(files[1])
                 data.coverLetter = uploadedCL
             }
