@@ -31,6 +31,10 @@ const applicationSchema = new mongoose.Schema({
         type: ObjectId,
         ref: 'Job'
     },
+    user: {
+        type: ObjectId,
+        ref: 'User'
+    },
     isDeleted: {
         type: Boolean,
         default: false

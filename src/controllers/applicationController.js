@@ -8,17 +8,25 @@ const applyJob = async (req, res) => {
         const data = req.body
         const { fname, lname, email } = data
         const files = req.files
+        const decoded = req.decodedToken
 
-        const applied = await application.findOne({ job: req.params.id });
+        const applied = await application.findOne({ job: req.params.id, user: decoded.userId })
+
         if (applied) {
-            return res.status(400).send({ message: 'already applied' });
+            return res.status(400).send({ message: 'Already applied' });
         }
 
         //validations
         const findJob = await Job.findOne({ _id: req.params.id, isDeleted: false });
-        if (!findJob) return res.status(404).send({ status: false, message: "No job found with this Id, please check again" });
-        data.job = findJob._id
 
+        if (decoded.userId.toString() === findJob.user.toString()) {
+            return res.status(400).send({ message: 'You created this job, so please!' });
+        }
+
+        if (!findJob) return res.status(404).send({ status: false, message: "No job found with this Id, please check again" });
+
+        data.job = findJob._id
+        data.user = decoded.userId
         data.isDeleted = false
 
         if (!nameRegex(fname)) return res.status(400).send({ status: false, message: "fname must be present and in correct format" });
@@ -88,7 +96,7 @@ const updateApplication = async (req, res) => {
 
         if (appWithJob.user.toString() !== decoded.userId) return res.status(403).send({ status: false, message: "You are not authorised" });
         //validations
-       
+
         if (fname) {
             if (!nameRegex(fname)) return res.status(400).send({ status: false, message: "fname must be present and in correct format" });
             applicant.fname = fname
